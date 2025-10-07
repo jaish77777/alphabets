@@ -1,0 +1,91 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background-color: #b3e5fc; /* sky blue */
+  font-family: 'Poppins', sans-serif;
+}
+
+canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* UI container */
+#ui {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+  max-width: 320px;
+}
+
+/* Heading */
+#ui h1 {
+  margin: 0;
+  font-size: 1.3rem;
+  color: #2e7d32;
+}
+
+/* Paragraph */
+#ui p {
+  margin: 6px 0 10px 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+/* General button styling */
+#ui button {
+  margin: 4px 3px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  transition: 0.2s;
+}
+
+/* Rotate / Zoom buttons (green) */
+#leftBtn, #rightBtn, #zoomInBtn, #zoomOutBtn {
+  background-color: #4caf50;
+  color: white;
+}
+#leftBtn::before { content: '⟲ '; }
+#rightBtn::before { content: '⟳ '; }
+#zoomInBtn::before { content: '＋ '; }
+#zoomOutBtn::before { content: '－ '; }
+
+#leftBtn:hover, #rightBtn:hover, #zoomInBtn:hover, #zoomOutBtn:hover {
+  background-color: #45a049;
+  transform: translateY(-1px);
+}
+
+/* Focus buttons container */
+#focusBtns {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+/* Focus buttons (blue) */
+#focusBtns button {
+  flex: 1 1 40px;
+  margin: 3px;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  background-color: #1976d2;
+  color: white;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+}
+
+#focusBtns button:hover {
+  background-color: #1565c0;
+  transform: translateY(-1px);
+}
