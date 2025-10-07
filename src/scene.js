@@ -10,15 +10,31 @@ export async function createScene(engine, canvas) {
 
   // --- Camera Setup ---
   const cameraTarget = new BABYLON.Vector3(0, 2, 0);
-  const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 2, Math.PI / 3, 90, cameraTarget, scene);
+  const camera = new BABYLON.ArcRotateCamera(
+    "camera",
+    Math.PI / 2,
+    Math.PI / 3,
+    90,
+    cameraTarget,
+    scene
+  );
   camera.attachControl(canvas, true);
   camera.lowerBetaLimit = 0.5;
   camera.upperBetaLimit = Math.PI / 2.1;
   camera.lowerRadiusLimit = 30;
   camera.upperRadiusLimit = 90;
+  camera.panningSensibility = 0;
+  camera.wheelDeltaPercentage = 0.01;
+  camera.inertia = 0.9;
+  camera.lowerAlphaLimit = 0;
+  camera.upperAlphaLimit = Math.PI * 2;
 
   // --- Lighting ---
-  const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+  const light = new BABYLON.HemisphericLight(
+    "light",
+    new BABYLON.Vector3(0, 1, 0),
+    scene
+  );
   light.intensity = 1.3;
 
   // --- Sky & Fog ---
@@ -31,7 +47,11 @@ export async function createScene(engine, canvas) {
   const { rockMat, highlightMat, playingMat } = setupMaterials(scene);
 
   // --- Ocean ---
-  const ocean = BABYLON.MeshBuilder.CreateGround("ocean", { width: 20000, height: 20000, subdivisions: 1 }, scene);
+  const ocean = BABYLON.MeshBuilder.CreateGround(
+    "ocean",
+    { width: 20000, height: 20000, subdivisions: 1 },
+    scene
+  );
   const oceanMat = new BABYLON.StandardMaterial("oceanMat", scene);
   oceanMat.diffuseColor = new BABYLON.Color3(0.0, 0.3, 0.6);
   oceanMat.specularColor = new BABYLON.Color3(0, 0, 0);
@@ -52,9 +72,15 @@ export async function createScene(engine, canvas) {
   const radius = 45;
 
   LETTERS.forEach((entry, i) => {
-    // Load sound for first 4 letters
+    // Load sound for letters A-D
     if (SOUND_LETTERS.includes(entry.letter) && entry.sound) {
-      const sound = new BABYLON.Sound(`sound_${entry.letter}`, entry.sound, scene, null, { autoplay: false });
+      const sound = new BABYLON.Sound(
+        `sound_${entry.letter}`,
+        entry.sound,
+        scene,
+        null,
+        { autoplay: false }
+      );
       scene.letterSounds[entry.letter] = sound;
     }
 
@@ -70,14 +96,19 @@ export async function createScene(engine, canvas) {
       const parts = item.model.split("/");
       const fileName = parts.pop();
       const rootUrl = parts.join("/") + "/";
-      const task = loader.addMeshTask(`${entry.letter}_task`, "", rootUrl, fileName);
+      const task = loader.addMeshTask(
+        `${entry.letter}_task`,
+        "",
+        rootUrl,
+        fileName
+      );
 
       task.onSuccess = (t) => {
         const mesh = t.loadedMeshes[0];
         mesh.isPickable = true;
         mesh.originalMaterial = mesh.material || scene.defaultMaterial;
 
-        // Adjust scale for specific letters
+        // --- Scale adjustments ---
         let scale = 1.5;
         if (entry.letter === "A") scale = 2.5;
         else if (entry.letter === "B") scale = 0.1;
@@ -85,11 +116,12 @@ export async function createScene(engine, canvas) {
         else if (entry.letter === "E") scale = 2.9;
 
         mesh.scaling = new BABYLON.Vector3(scale, scale, scale);
-        const yPosition = 2 + mesh.getBoundingInfo().boundingBox.extendSize.y * scale;
+        const yPosition =
+          2 + mesh.getBoundingInfo().boundingBox.extendSize.y * scale;
         mesh.position = new BABYLON.Vector3(x, yPosition, z);
         mesh.rotation = new BABYLON.Vector3(0, Math.PI / 4, 0);
-        scene.letterMeshes[entry.letter] = mesh;
 
+        scene.letterMeshes[entry.letter] = mesh;
         setupInteractivity(scene, mesh, entry.letter);
       };
 
@@ -98,11 +130,14 @@ export async function createScene(engine, canvas) {
   });
 
   loader.load();
-  setupSceneInteractivity(scene, camera, SOUND_LETTERS); // Pass SOUND_LETTERS to interactivity
+  setupSceneInteractivity(scene, camera);
 
   // --- WebXR (VR) ---
   try {
-    const xrHelper = await scene.createDefaultXRExperienceAsync({ floorMeshes: [ocean], disableTeleportation: false });
+    const xrHelper = await scene.createDefaultXRExperienceAsync({
+      floorMeshes: [ocean],
+      disableTeleportation: false,
+    });
     scene.xrHelper = xrHelper;
 
     // Hide UI in VR
@@ -112,14 +147,14 @@ export async function createScene(engine, canvas) {
       ui.style.display = state === BABYLON.WebXRState.IN_XR ? "none" : "block";
     });
 
-    // Scale letters in VR
+    // Increase visibility in VR
     Object.values(scene.letterMeshes).forEach((mesh) => {
       mesh.scaling = mesh.scaling.multiplyByFloats(1.5, 1.5, 1.5);
     });
 
     console.log("✅ WebXR Ready — VR headset supported");
   } catch (e) {
-    console.warn("⚠️ WebXR not supported in this browser:", e);
+    console.warn("⚠️ WebXR not supported:", e);
   }
 
   return scene;
